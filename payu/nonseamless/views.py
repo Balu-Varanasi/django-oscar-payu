@@ -142,12 +142,16 @@ class PayuPreRequestView(FormView):
         """
         Returns the initial data to use for forms on this view.
         """
-        salt = settings.PAYU_INFO.get(self.request.session['currency']).get('merchant_salt')
-        key = settings.PAYU_INFO.get(self.request.session['currency']).get('merchant_key')
+        currency = self.request.session.get('currency') or 'INR'
+        salt = settings.PAYU_INFO.get(currency).get('merchant_salt')
+        key = settings.PAYU_INFO.get(currency).get('merchant_key')
         txn = self.txn
-        curl = self.request.build_absolute_uri(reverse('payu-fail-response', kwargs={'txn_id': txn.txnid}))
-        furl = self.request.build_absolute_uri(reverse('payu-cancel-response', kwargs={'txn_id': txn.txnid}))
-        surl = self.request.build_absolute_uri(reverse('payu-place-order', kwargs={'txn_id': txn.txnid}))
+        curl = self.request.build_absolute_uri(
+            reverse('payu-fail-response', kwargs={'txn_id': txn.txnid}))
+        furl = self.request.build_absolute_uri(
+            reverse('payu-cancel-response', kwargs={'txn_id': txn.txnid}))
+        surl = self.request.build_absolute_uri(
+            reverse('payu-place-order', kwargs={'txn_id': txn.txnid}))
 
         # print self.txn_id
         initial = super(PayuPreRequestView, self).get_initial()
@@ -155,7 +159,8 @@ class PayuPreRequestView(FormView):
         initial['key'] = key
         initial['txnid'] = txn.txnid
         initial['productinfo'] = txn.productinfo.encode('ascii', 'ignore').strip()
-        initial['amount'] = txn.amount
+        # initial['amount'] = txn.amount
+        initial['amount'] = 1
         initial['firstname'] = txn.firstname
         initial['lastname'] = txn.lastname
         initial['email'] = txn.email
@@ -296,9 +301,13 @@ class SuccessResponseView(PaymentDetailsView):
                 name='Payu')
         source = Source(source_type=source_type,
                         currency=kwargs['txn'].currency,
-                        amount_allocated=kwargs['txn'].amount,
-                        amount_debited=kwargs['txn'].amount,
+                        # amount_allocated=kwargs['txn'].amount,
+                        # amount_debited=kwargs['txn'].amount,
+                        amount_allocated=1,
+                        amount_debited=1,
                         reference=kwargs['txn'].txnid)
 
         self.add_payment_source(source)
-        self.add_payment_event('Settled', kwargs['txn'].amount, reference=kwargs['txn'].txnid)
+        # self.add_payment_event('Settled', kwargs['txn'].amount,
+        #                        reference=kwargs['txn'].txnid)
+        self.add_payment_event('Settled', 1, reference=kwargs['txn'].txnid)
