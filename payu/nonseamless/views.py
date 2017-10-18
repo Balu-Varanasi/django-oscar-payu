@@ -159,8 +159,8 @@ class PayuPreRequestView(FormView):
         initial['key'] = key
         initial['txnid'] = txn.txnid
         initial['productinfo'] = txn.productinfo.encode('ascii', 'ignore').strip()
-        # initial['amount'] = txn.amount
-        initial['amount'] = 1
+        initial['amount'] = txn.amount
+        # initial['amount'] = 1
         initial['firstname'] = txn.firstname
         initial['lastname'] = txn.lastname
         initial['email'] = txn.email
@@ -301,13 +301,13 @@ class SuccessResponseView(PaymentDetailsView):
                 name='Payu')
         source = Source(source_type=source_type,
                         currency=kwargs['txn'].currency,
-                        # amount_allocated=kwargs['txn'].amount,
-                        # amount_debited=kwargs['txn'].amount,
-                        amount_allocated=1,
-                        amount_debited=1,
+                        amount_allocated=kwargs['txn'].amount,
+                        amount_debited=kwargs['txn'].amount,
+                        # amount_allocated=1,
+                        # amount_debited=1,
                         reference=kwargs['txn'].txnid)
 
         self.add_payment_source(source)
-        # self.add_payment_event('Settled', kwargs['txn'].amount,
-        #                        reference=kwargs['txn'].txnid)
-        self.add_payment_event('Settled', 1, reference=kwargs['txn'].txnid)
+        self.add_payment_event('Settled', kwargs['txn'].amount,
+                               reference=kwargs['txn'].txnid)
+        # self.add_payment_event('Settled', 1, reference=kwargs['txn'].txnid)
