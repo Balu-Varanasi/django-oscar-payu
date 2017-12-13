@@ -134,7 +134,8 @@ class PayuPreRequestView(FormView):
 
     def get_context_data(self, **kwargs):
         conetxt = super(PayuPreRequestView, self).get_context_data(**kwargs)
-        conetxt['action'] = settings.PAYU_INFO.get(self.request.session['currency']).get('payment_url')
+        conetxt['action'] = settings.PAYU_INFO.get(
+            self.txn.currency).get('payment_url')
 
         return conetxt
 
@@ -142,10 +143,11 @@ class PayuPreRequestView(FormView):
         """
         Returns the initial data to use for forms on this view.
         """
-        currency = self.request.session.get('currency') or 'INR'
-        salt = settings.PAYU_INFO.get(currency).get('merchant_salt')
-        key = settings.PAYU_INFO.get(currency).get('merchant_key')
         txn = self.txn
+
+        salt = settings.PAYU_INFO.get(txn.currency).get('merchant_salt')
+        key = settings.PAYU_INFO.get(txn.currency).get('merchant_key')
+
         curl = self.request.build_absolute_uri(
             reverse('payu-fail-response', kwargs={'txn_id': txn.txnid}))
         furl = self.request.build_absolute_uri(
@@ -270,7 +272,7 @@ class SuccessResponseView(PaymentDetailsView):
 
         self.txn.raw_response = json.dumps(self.request.POST)
         self.txn.save()
-        salt = settings.PAYU_INFO.get(self.request.session['currency']).get('merchant_salt')
+        salt = settings.PAYU_INFO.get(self.txn.currency).get('merchant_salt')
         if not verify_hash(request.POST, salt):
             messages.error(self.request, error_msg)
             return HttpResponseRedirect(reverse('basket:summary'))
@@ -303,8 +305,6 @@ class SuccessResponseView(PaymentDetailsView):
                         currency=kwargs['txn'].currency,
                         amount_allocated=kwargs['txn'].amount,
                         amount_debited=kwargs['txn'].amount,
-                        # amount_allocated=1,
-                        # amount_debited=1,
                         reference=kwargs['txn'].txnid)
 
         self.add_payment_source(source)
