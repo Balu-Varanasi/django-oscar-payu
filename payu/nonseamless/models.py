@@ -32,7 +32,7 @@ class NonSeamlessTransaction(models.Model):
     city = models.CharField(_('City'), max_length=32, null=True, blank=True)
     state = models.CharField(_('State'), max_length=32, null=True, blank=True)
     country = models.CharField(_('Country'), max_length=32, null=True, blank=True)
-    zipcode = models.CharField(_('Zip Code'), max_length=8, null=True, blank=True)
+    zipcode = models.CharField(_('Zip Code'), max_length=64, null=True, blank=True)
     udf1 = models.CharField(max_length=255, null=True, blank=True)
     udf2 = models.CharField(max_length=255, null=True, blank=True)
     udf3 = models.CharField(max_length=255, null=True, blank=True)

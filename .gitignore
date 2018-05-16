@@ -7,7 +7,7 @@
 *.sql
 *.sqlite3
 *.egg*
-
+build/
 
 # OS files
 .DS_Store
